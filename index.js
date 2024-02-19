@@ -7,19 +7,20 @@ const hashkey = 'pwFHCqoQZGmho4w6'; //3002607
 const hashiv = 'EkRm7iFT261dpevs'; //3002607
 
 //請自行選擇並修改變數
-const parameters = {
-  MerchantID: '3002607',
-  MerchantTradeNO: 'ecpay20240101000000',
-  MerchantTradeDate: '2024/01/01 00:00:00',
-  PaymentType: 'aio',
-  TotalAmount: '100',
-  TradeDesc: 'testtrade',
-  ItemName: 'testitem',
-  ReturnURL: 'https://test.test',
-  ChoosePayment: 'ALL',
-  EncryptType: '1'
-};
-//const parameters ='MerchantID=3002607&MerchantTradeNO=ecpay20240101000000&MerchantTradeDate=2024/01/01 00:00:00&PaymentType=aio&TotalAmount=100&TradeDesc=testtrade&ItemName=testitem&ReturnURL=https://test.test&ChoosePayment=ALL&EncryptType=1';
+// const parameters = {
+//   MerchantID: '3002607',
+//   MerchantTradeNO: 'ecpay20240101000000',
+//   MerchantTradeDate: '2024/01/01 00:00:00',
+//   PaymentType: 'aio',
+//   TotalAmount: '100',
+//   TradeDesc: 'testtrade',
+//   ItemName: 'testitem',
+//   ReturnURL: 'https://test.test',
+//   ChoosePayment: 'ALL',
+//   EncryptType: '1'
+// };
+const parameters =
+  'TradeDesc=促銷方案&PaymentType=aio&MerchantTradeDate=2023/03/12 15:30:23&MerchantTradeNo=ecpay20230312153023&MerchantID=3002607&ReturnURL=https://www.ecpay.com.tw/receive.php&ItemName=Apple iphone 15&TotalAmount=30000&ChoosePayment=ALL&EncryptType=1';
 
 ////////以下不須修改
 import { createHash } from 'crypto';
@@ -39,6 +40,27 @@ function CheckMacValueGen(parameters, algorithm, digest) {
       .map(([key, value]) => `${key}=${value}`)
       .join('&');
   }
+
+  function DotNETURLEncode(string) {
+    const list = {
+      '%2D': '-',
+      '%5F': '_',
+      '%2E': '.',
+      '%21': '!',
+      '%2A': '*',
+      '%28': '(',
+      '%29': ')',
+      '%20': '+'
+    };
+
+    Object.entries(list).forEach(([encoded, decoded]) => {
+      const regex = new RegExp(encoded, 'g');
+      string = string.replace(regex, decoded);
+    });
+
+    return string;
+  }
+
   const Step1 = Step0.split('&')
     .sort((a, b) => {
       const keyA = a.split('=')[0];
@@ -47,7 +69,7 @@ function CheckMacValueGen(parameters, algorithm, digest) {
     })
     .join('&');
   const Step2 = `HashKey=${hashkey}&${Step1}&HashIV=${hashiv}`;
-  const Step3 = encodeURIComponent(Step2);
+  const Step3 = DotNETURLEncode(encodeURIComponent(Step2));
   const Step4 = Step3.toLowerCase();
   const Step5 = createHash(algorithm).update(Step4).digest(digest);
   const Step6 = Step5.toUpperCase();
